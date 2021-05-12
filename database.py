@@ -1,6 +1,8 @@
 import pymssql
 
 class dataBase():
+    """2 tane tablodan olusan database class'i. Database'e veri ekleme, veri cikarma gibi islemleri yapabileceginiz class.
+    """    
     def __init__(self):
         self.conn = pymssql.connect(server='localhost', user='sa', password='MyPass@word', database='master')
         self.cursor = self.conn.cursor()
@@ -67,7 +69,6 @@ class dataBase():
         self.conn.commit()
     
 m = dataBase()
-m.randevuEkle(103,'Kemal','s2','sa','asds','sd','sda','asds')
 
 
 
