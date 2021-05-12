@@ -1,5 +1,5 @@
 import pymssql
-
+import pypyodbc
 class dataBase():
     def __init__(self):
         self.conn = pymssql.connect(server='localhost', user='sa', password='MyPass@word', database='master')
