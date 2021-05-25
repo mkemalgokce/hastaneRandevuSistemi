@@ -287,13 +287,6 @@ class mainApp(QMainWindow):
         errorBox.setText(hataMesaji)
         return errorBox
 
-app = QApplication(sys.argv)
-demo = mainApp()
-demo.show()
-try:
-    sys.exit(app.exec_())
-except SystemExit:
-    print('Closing Window')
 
 
              
