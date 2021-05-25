@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="Icons">
+    <file>tick.png</file>
+    <file>hospital.png</file>
+  </qresource>
+</RCC>
