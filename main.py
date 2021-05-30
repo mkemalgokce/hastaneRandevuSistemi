@@ -187,7 +187,7 @@ class hastaEkle(QWidget):
                 
         self.update()
     def errorBox(self,hataMesaji=str)->None:
-        """[Ekrana hata mesaji yansitir.]
+        """[Ekrana hata mesaji yansitir.]s
 
         Args:
             hataMesaji ([string], optional): [Ekranda gosterilecek hata mesaji]. Defaults to str.
