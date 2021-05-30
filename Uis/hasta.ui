@@ -41,7 +41,7 @@
      <x>220</x>
      <y>10</y>
      <width>266</width>
-     <height>623</height>
+     <height>669</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
@@ -107,7 +107,224 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="0">
+    <item row="17" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="text">
+       <string>Hasta Soyadı :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="17" column="1">
+     <widget class="QLineEdit" name="soyad_Line">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0,0,0);
+background-color: rgb(255, 255, 255);
+</string>
+      </property>
+      <property name="inputMethodHints">
+       <set>Qt::ImhLowercaseOnly</set>
+      </property>
+      <property name="placeholderText">
+       <string>Soyad</string>
+      </property>
+     </widget>
+    </item>
+    <item row="30" column="0" colspan="2">
+     <widget class="QPushButton" name="hastaEkle_Btn">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 190);</string>
+      </property>
+      <property name="text">
+       <string>Onayla</string>
+      </property>
+     </widget>
+    </item>
+    <item row="18" column="0">
+     <widget class="QLabel" name="label_12">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="text">
+       <string>Doğum Tarihi (Yıl):</string>
+      </property>
+     </widget>
+    </item>
+    <item row="19" column="1">
+     <widget class="QLineEdit" name="mail_Line">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0,0,0);
+background-color: rgb(255, 255, 255);
+</string>
+      </property>
+      <property name="inputMethodHints">
+       <set>Qt::ImhLowercaseOnly</set>
+      </property>
+      <property name="placeholderText">
+       <string>E-mail</string>
+      </property>
+     </widget>
+    </item>
+    <item row="20" column="1">
+     <widget class="QComboBox" name="comboBox_Cinsiyet">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 0);
+background-color: rgb(255, 255, 255);
+</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>Kadın</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Erkek</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="19" column="0">
+     <widget class="QLabel" name="label_10">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="text">
+       <string>E-mail:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="20" column="0">
+     <widget class="QLabel" name="label_11">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="text">
+       <string>Cinsiyet</string>
+      </property>
+     </widget>
+    </item>
+    <item row="21" column="1">
+     <widget class="QDateEdit" name="rt_dateEdit">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="calendarPopup">
+       <bool>true</bool>
+      </property>
+      <property name="date">
+       <date>
+        <year>2021</year>
+        <month>1</month>
+        <day>1</day>
+       </date>
+      </property>
+     </widget>
+    </item>
+    <item row="21" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="text">
+       <string>Randevu Tarihi :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="22" column="1">
+     <widget class="QComboBox" name="comboBox_Saat">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 0);
+background-color: rgb(255, 255, 255);
+</string>
+      </property>
+     </widget>
+    </item>
+    <item row="22" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="text">
+       <string>Randevu Saati :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="23" column="1">
+     <widget class="QComboBox" name="comboBox_Poliklinik">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 0);
+background-color: rgb(255, 255, 255);
+</string>
+      </property>
+     </widget>
+    </item>
+    <item row="23" column="0">
+     <widget class="QLabel" name="label_6">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="text">
+       <string>Poliklinik :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="24" column="1">
+     <widget class="QComboBox" name="comboBox_Doktor">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 0);
+background-color: rgb(255, 255, 255);
+</string>
+      </property>
+     </widget>
+    </item>
+    <item row="24" column="0">
+     <widget class="QLabel" name="label_5">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="text">
+       <string>Doktor :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="16" column="0">
+     <widget class="QLabel" name="label">
+      <property name="layoutDirection">
+       <enum>Qt::RightToLeft</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="text">
+       <string>Hasta Adı :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="16" column="1">
+     <widget class="QLineEdit" name="ad_Line">
+      <property name="layoutDirection">
+       <enum>Qt::RightToLeft</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0,0,0);
+background-color: rgb(255, 255, 255);
+</string>
+      </property>
+      <property name="inputMethodHints">
+       <set>Qt::ImhNone</set>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="placeholderText">
+       <string>Ad</string>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="0">
      <widget class="QLabel" name="label_8">
       <property name="layoutDirection">
        <enum>Qt::RightToLeft</enum>
@@ -120,7 +337,7 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="1">
+    <item row="15" column="1">
      <widget class="QLineEdit" name="tc_Line">
       <property name="layoutDirection">
        <enum>Qt::RightToLeft</enum>
@@ -144,77 +361,8 @@ background-color: rgb(255, 255, 255);
       </property>
      </widget>
     </item>
-    <item row="12" column="0">
-     <widget class="QLabel" name="label">
-      <property name="layoutDirection">
-       <enum>Qt::RightToLeft</enum>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
-      <property name="text">
-       <string>Hasta Adı :</string>
-      </property>
-     </widget>
-    </item>
-    <item row="12" column="1">
-     <widget class="QLineEdit" name="ad_Line">
-      <property name="layoutDirection">
-       <enum>Qt::RightToLeft</enum>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(0,0,0);
-background-color: rgb(255, 255, 255);
-</string>
-      </property>
-      <property name="inputMethodHints">
-       <set>Qt::ImhNone</set>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="placeholderText">
-       <string>Ad</string>
-      </property>
-     </widget>
-    </item>
-    <item row="15" column="0">
-     <widget class="QLabel" name="label_2">
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
-      <property name="text">
-       <string>Hasta Soyadı :</string>
-      </property>
-     </widget>
-    </item>
-    <item row="15" column="1">
-     <widget class="QLineEdit" name="soyad_Line">
-      <property name="styleSheet">
-       <string notr="true">color: rgb(0,0,0);
-background-color: rgb(255, 255, 255);
-</string>
-      </property>
-      <property name="inputMethodHints">
-       <set>Qt::ImhLowercaseOnly</set>
-      </property>
-      <property name="placeholderText">
-       <string>Soyad</string>
-      </property>
-     </widget>
-    </item>
-    <item row="16" column="0">
-     <widget class="QLabel" name="label_3">
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
-      <property name="text">
-       <string>Randevu Tarihi :</string>
-      </property>
-     </widget>
-    </item>
-    <item row="16" column="1">
-     <widget class="QDateEdit" name="dateEdit">
+    <item row="18" column="1">
+     <widget class="QDateEdit" name="dt_dateEdit">
       <property name="styleSheet">
        <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
@@ -223,77 +371,10 @@ background-color: rgb(255, 255, 255);
       </property>
       <property name="date">
        <date>
-        <year>2021</year>
-        <month>1</month>
+        <year>2000</year>
+        <month>12</month>
         <day>1</day>
        </date>
-      </property>
-     </widget>
-    </item>
-    <item row="17" column="0">
-     <widget class="QLabel" name="label_4">
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
-      <property name="text">
-       <string>Randevu Saati :</string>
-      </property>
-     </widget>
-    </item>
-    <item row="17" column="1">
-     <widget class="QComboBox" name="comboBox_Saat">
-      <property name="styleSheet">
-       <string notr="true">color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);
-</string>
-      </property>
-     </widget>
-    </item>
-    <item row="19" column="0">
-     <widget class="QLabel" name="label_6">
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
-      <property name="text">
-       <string>Poliklinik :</string>
-      </property>
-     </widget>
-    </item>
-    <item row="19" column="1">
-     <widget class="QComboBox" name="comboBox_Poliklinik">
-      <property name="styleSheet">
-       <string notr="true">color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);
-</string>
-      </property>
-     </widget>
-    </item>
-    <item row="22" column="0">
-     <widget class="QLabel" name="label_5">
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
-      <property name="text">
-       <string>Doktor :</string>
-      </property>
-     </widget>
-    </item>
-    <item row="22" column="1">
-     <widget class="QComboBox" name="comboBox_Doktor">
-      <property name="styleSheet">
-       <string notr="true">color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);
-</string>
-      </property>
-     </widget>
-    </item>
-    <item row="24" column="0" colspan="2">
-     <widget class="QPushButton" name="hastaEkle_Btn">
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 255, 190);</string>
-      </property>
-      <property name="text">
-       <string>Onayla</string>
       </property>
      </widget>
     </item>

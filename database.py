@@ -10,7 +10,9 @@ class dataBase():
             self.cursor = self.conn.cursor()
             self.createTable()
             self.isConnected = True
+            print("Baglanti basarili.")
         except Exception:
+            print("Database'e Baglanilamadi!")
             self.isConnected = False
     def createTable(self)->None:
         '''
@@ -20,28 +22,47 @@ class dataBase():
             if not exists (select * from sysobjects where name='Hasta' and xtype='U')
             CREATE TABLE Hasta
             (
-            TC nvarchar(11) NOT NULL ,
-            AD nvarchar(50),
-            SOYAD nvarchar(50),
-            Tarih nvarchar(50),
-            Saat nvarchar(50),
-            Poliklinik nvarchar(50),
+            ID int IDENTITY(1,1) PRIMARY KEY,
+            TC nvarchar(11) ,
+            Ad nvarchar(50),
+            Soyad nvarchar(50),
+            Cinsiyet nvarchar(5),
+            Mail nvarchar(50),
+            Dogum_tarihi Date,
+            )
+        ''')
+        self.cursor.execute('''
+            if not exists (select * from sysobjects where name='Randevu' and xtype='U')
+            CREATE TABLE Randevu
+            (
+            ID int IDENTITY(1,1),
+            Tarih varchar(50),
+            Saat varchar(50),
+            FOREIGN KEY (ID) REFERENCES Hasta(ID)
+            )
+        ''')
+        self.cursor.execute('''
+            if not exists (select * from sysobjects where name='Poliklinikler' and xtype='U')
+            CREATE TABLE Poliklinikler
+            (
+            ID int IDENTITY(1,1),
             Doktor nvarchar(50),
+            Poliklinik nvarchar(50),
+            FOREIGN KEY(ID) REFERENCES Hasta(ID)
             )
         ''')
         self.cursor.execute('''
             if not exists (select * from sysobjects where name='Istatistik' and xtype='U')
             CREATE TABLE Istatistik
             (
-            Doktor nvarchar(50),
-            Poliklinik nvarchar(50),
-            TC int NOT NULL ,
+            ID int IDENTITY(1,1),
             Ad nvarchar(50),
             Soyad nvarchar(50),
-            Tarih nvarchar(50),
-            Saat nvarchar(50),
-            Cinsiyeti nvarchar(50)
+            Cinsiyet nvarchar(50),
+            Yas nvarchar(50),
+            FOREIGN KEY(ID) REFERENCES Hasta(ID)
             )
+
         ''')
         self.conn.commit()
     
@@ -56,17 +77,21 @@ class dataBase():
     def getPoliklinikler(self)->list:
         self.cursor.execute('SELECT DISTINCT Poliklinik FROM Hasta')
         return self.cursor.fetchall()
-    def randevuEkle(self,tc=str,ad=str,soyad=str,tarih=str,saat=str,poliklinik=str,doktor=str)->None: 
+    
+    def randevuEkle(self,tc=str,ad=str,soyad=str,tarih=str,saat=str,poliklinik=str,doktor=str,mail=str,cinsiyet=str,dogum_tarihi=str)->None: 
         '''
             Bu fonksiyon hasta tablosuna satir ekler.
         '''
         try:
-            self.cursor.execute('INSERT INTO Hasta VALUES(%s, %s,%s, %s,%s, %s,%s)',(tc,ad,soyad,tarih,saat,poliklinik,doktor))
+            self.cursor.execute('INSERT INTO Hasta VALUES(%s, %s,%s, %s,%s, %s)',(tc,ad,soyad,cinsiyet,mail,dogum_tarihi))
+            self.conn.commit()
+            self.cursor.execute('INSERT INTO Randevu VALUES(%s,%s)',(tarih,saat))
+            self.conn.commit()
+            self.cursor.execute('INSERT INTO Poliklinikler VALUES(%s,%s)',(doktor,poliklinik))
             self.conn.commit()
             return True
-        except:
+        except Exception:
             return False
-        
     def randevuSil(self,tc=str)->int:
         '''
             Bu fonksiyon verilen tc numarasina hasta tablosundan veri siler.
@@ -76,14 +101,14 @@ class dataBase():
         self.cursor.execute('SELECT TC FROM Hasta')
         lenTc = len(self.cursor.fetchall())
         if(lenTc == 0 ):
-            return 0
+            return 0 #Hasta bulunamadi.
         
         try:
             self.cursor.execute('DELETE FROM Hasta WHERE TC = %s',tc)
             self.conn.commit()
-            return 1
-        except:
-            return -1
+            return 1 #Hasta silindi.
+        except Exception:
+            return -1 #Hata olustu, hasta silinemedi.
     
     def alinmisRandevular(self)->None:
         '''
@@ -101,7 +126,7 @@ class dataBase():
         '''
             Database'e kayitli tum hastalari dondurur.
         '''
-        self.cursor.execute('SELECT * FROM Hasta')
+        self.cursor.execute('EXEC createTable')
         return self.cursor.fetchall()
     
     def getHasta(self,date=str)->list:
@@ -115,8 +140,82 @@ class dataBase():
         '''
             Verilen tarih ve saat degerlerindeki doktorlari ve calistiklari poliklinikleri dondurur.
         '''
-        self.cursor.execute('SELECT Doktor,Poliklinik FROM Hasta Where Tarih = %s and Saat = %s ',(date,saat))
+        self.cursor.execute('SELECT Doktor,Poliklinik FROM Poliklinikler,Randevu Where Tarih = %s and Saat = %s ',(date,saat))
         return self.cursor.fetchall()
     
+    def hastaBul(self,tc=str):
+        '''
+            Verilen TC degerine gore hastalarin randevu bilgilerini bulur.
+        '''
+        try:
+            self.cursor.execute("EXEC hastaBul %s",tc)
+            return self.cursor.fetchall()
+        except Exception:
+            return False
         
-
+    def getUniqueTC(self,tc=str):
+        self.cursor.execute('SELECT DISTINCT TC,AD,SOYAD FROM HASTA WHERE TC = %s',tc)
+        tc = self.cursor.fetchall()
+        return tc
+    def getIstatistik(self,switch=str):
+        if(switch=='doktor_siralama'):
+            self.cursor.execute(''' 
+                        SELECT Poliklinikler.Doktor, Count(*) as muayene_sayisi FROM Poliklinikler, Hasta
+                        where Poliklinikler.ID = Hasta.ID
+                        Group by Doktor
+                        order by  muayene_sayisi  desc
+            ''')
+            return self.cursor.fethall()
+        elif switch=='max_doktor':
+            self.cursor.execute(''' 
+                    SELECT Poliklinikler.Doktor, Count(*) as muayene_sayisi FROM Poliklinikler, Hasta
+                    where Poliklinikler.ID = Hasta.ID
+                    Group by Doktor
+                    order by  muayene_sayisi  desc               
+                                
+            ''')
+            return self.cursor.fetchall()
+        elif switch=='toplam_hasta_sayisi':
+            self.cursor.execute('SELECT  Count(*) as toplam_hasta_sayisi FROM Hasta')
+            return self.cursor.fetchall()
+        
+        elif switch == 'toplam_erkek_sayisi':
+            self.cursor.execute("SELECT  Count(*) as Erkek FROM Hasta WHERE Cinsiyet= 'Erkek' ")
+            return self.cursor.fetchall()
+        elif switch == 'toplam_kadin_sayisi':
+            self.cursor.execute("SELECT  Count(*) as Erkek FROM Hasta WHERE Cinsiyet= 'Kadin' ")
+            return self.cursor.fetchall()
+            
+        elif switch =='erkek_yas':
+            self.cursor.execute("SELECT  AVG(DATEDIFF(YY,Dogum_tarihi,GETDATE())) as Erkek_yas_ortalamalari FROM Hasta WHERE Cinsiyet= 'Erkek'")
+            return self.cursor.fetchall()
+        elif switch =='kadin_yas':
+            self.cursor.execute("SELECT  AVG(DATEDIFF(YY,Dogum_tarihi,GETDATE())) as Erkek_yas_ortalamalari FROM Hasta WHERE Cinsiyet= 'Kadin'")
+            return self.cursor.fetchall()
+        
+        elif switch =='pol_gelen_hasta':
+            self.cursor.execute(''' 
+                        SELECT Poliklinikler.Poliklinik, Count(*) as Poliklinik_GTHS FROM Poliklinikler, Hasta
+                        where Poliklinikler.ID = Hasta.id
+                        Group by Poliklinik
+                        order by  Poliklinik_GTHS  desc
+            ''')
+            return self.cursor.fetchall()
+        elif switch == 'max_Poliklinik':
+            self.cursor.execute('''
+                Select Poliklinik from Poliklinikler
+                WHERE  ID = (SELECT TOP(1) Alt_Sorgu.ID
+                from(SELECT Hasta.ID, Count(*) as Poliklinik_GTHS FROM Hasta,Poliklinikler
+                where Poliklinikler.ID = Hasta.ID
+                Group by Hasta.ID) AS Alt_Sorgu
+                order by  Poliklinik_GTHS  desc)
+            ''')
+            return self.cursor.fetchall()
+        elif switch == 'en_yogun_gun':
+            self.cursor.execute('EXEC enYogunGun')
+            return self.cursor.fetchall()
+        elif switch == 'hasta_gencler':
+            self.cursor.execute('EXEC hastaGencler')
+            return self.cursor.fetchall()
+        else:
+            print('Hata!')
