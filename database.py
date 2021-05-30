@@ -140,7 +140,7 @@ class dataBase():
         '''
             Verilen tarih ve saat degerlerindeki doktorlari ve calistiklari poliklinikleri dondurur.
         '''
-        self.cursor.execute('SELECT Doktor,Poliklinik FROM Poliklinikler,Randevu Where Tarih = %s and Saat = %s ',(date,saat))
+        self.cursor.execute('SELECT DISTINCT Doktor,Poliklinik FROM Poliklinikler,Randevu Where Tarih = %s and Saat = %s ',(date,saat))
         return self.cursor.fetchall()
     
     def hastaBul(self,tc=str):
@@ -219,3 +219,4 @@ class dataBase():
             return self.cursor.fetchall()
         else:
             print('Hata!')
+

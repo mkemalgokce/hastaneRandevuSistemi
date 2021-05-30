@@ -53,7 +53,6 @@ class hastaEkle(QWidget):
         self.soyad_Line.setMaxLength(30)
         self.soyad_Line.setValidator(letterValidator) 
         
-        self.dateEdit.setDisplayFormat("dd.MM.yyyy")
         
         # Saatleri guncellemek icin event takibi yaptim, kullanici comboboxa tiklarsa saatler otomatik olarak guncellenecek.
         self.comboBox_AddItems('saat',self.saat)
@@ -78,7 +77,7 @@ class hastaEkle(QWidget):
         if target == self.comboBox_Poliklinik and event.type() == QEvent.MouseButtonPress:
             #Kullanici Poliklinik comboBox'una tiklarsa bu event calisiyor.
             saat = self.comboBox_Saat.currentText()
-            tarih = self.dateEdit.date().toString("dd.MM.yyyy")
+            tarih = self.rt_dateEdit.date().toString("dd.MM.yyyy")
             
             if(saat != 'Saat Seciniz.'):
                 datas = self.parent.database.getUniqueDoctors(tarih,saat)
@@ -98,24 +97,24 @@ class hastaEkle(QWidget):
         if target == self.comboBox_Doktor and event.type() == QEvent.MouseButtonPress:
             #Kullanici Doktor comboBox'una tiklarsa bu event calisiyor.
             saat = self.comboBox_Saat.currentText()
-            tarih = self.dateEdit.date().toString("dd.MM.yyyy")
+            tarih = self.rt_dateEdit.date().toString("dd.MM.yyyy")
             if(saat != 'Saat Seciniz.'):
                 datas = self.parent.database.getUniqueDoctors(tarih,saat)
                 if(self.comboBox_Poliklinik.currentText()==self.poliklinikler[1]):
                     dok = self.doktorlar.copy()[:3]
                     for i in range(len(datas)):
-                        if(self.doktorlar[1] == datas[i][0]):
+                        if(dok[1] == datas[i][0]):
                             dok.remove(datas[i][0])
-                        elif(self.doktorlar[2] == datas[i][0]):
+                        elif(dok[2] == datas[i][0]):
                             dok.remove(datas[i][0])
                     self.comboBox_AddItems('doktor',dok)
                 
                 elif(self.comboBox_Poliklinik.currentText()==self.poliklinikler[2]):
                     dok = [self.doktorlar[0]]+self.doktorlar.copy()[3:] 
                     for i in range(len(datas)):
-                        if(self.doktorlar[3] == datas[i][0]):
+                        if(dok[1] == datas[i][0]):
                             dok.remove(datas[i][0])
-                        elif(self.doktorlar[4] == datas[i][0]):
+                        elif(dok[2] == datas[i][0]):
                             dok.remove(datas[i][0])
                     self.comboBox_AddItems('doktor',dok)
         return False     
@@ -146,13 +145,13 @@ class hastaEkle(QWidget):
         '''
             Bu fonksiyon database'deki degerlere gore hasta ekleme pencerisini gunceller.
         '''
-        tarih = self.dateEdit.date().toString("dd.MM.yyyy")
+        tarih = self.rt_dateEdit.date().toString("dd.MM.yyyy")
         doluSaatler = []
         self.saat = mesaiSaatleri(self.saat)
-        for i in range(0,len(self.saat)):
+        for i in range(0,len(self.saat)):    
             if(len(self.parent.database.getUniqueDoctors(tarih,self.saat[i])) == 4):
                 doluSaatler.append(self.saat[i])
-        print('Dolu Saatler : ' , doluSaatler)        
+        
         if len(doluSaatler)!= 0 :
             for x in doluSaatler:
                 self.saat.remove(x)
@@ -170,22 +169,28 @@ class hastaEkle(QWidget):
         doktor = self.comboBox_Doktor.currentText()
         poliklinik = self.comboBox_Poliklinik.currentText()
         saat = self.comboBox_Saat.currentText()
-        tarih =  self.dateEdit.date().toString("dd.MM.yyyy")
-        
-        if(ad == '' or soyad == '' or tc == '' or doktor == 'Doktor Seciniz.' or poliklinik == 'Poliklinik Seciniz.' or saat == 'Saat Seciniz.'):
+        tarih =  self.rt_dateEdit.date().toString("dd.MM.yyyy")
+        cinsiyet = self.comboBox_Cinsiyet.currentText()
+        dogum_tarihi = self.dt_dateEdit.date().toString("MM.dd.yyyy")
+        mail = self.mail_Line.text()
+        uniquePatiens = self.parent.database.getUniqueTC(tc)
+        if(mail=='' or ad == '' or soyad == '' or tc == '' or doktor == 'Doktor Seciniz.' or poliklinik == 'Poliklinik Seciniz.' or saat == 'Saat Seciniz.'):
             self.errorBox('Lutfen tum alanlari eksiksiz doldurunuz!')
 
         elif(len(tc)<11):
             self.errorBox("Lutfen TC'nizi dogru giriniz!")
-        
+        elif len(uniquePatiens) != 0 and uniquePatiens[0][1] != ad and uniquePatiens[0][1] != soyad :
+            self.errorBox('Hatali TC !')
+            
         else:
-            if(not self.parent.database.randevuEkle(tc,ad,soyad,tarih,saat,poliklinik,doktor)):
+            if(not self.parent.database.randevuEkle(tc,ad,soyad,tarih,saat,poliklinik,doktor,mail,cinsiyet,dogum_tarihi)):
                 self.errorBox('Hasta eklenemedi!')
             else:
                 self.errorBox('Islem tamamlandi.')
                 self.parent.updateTable()
                 
         self.update()
+        
     def errorBox(self,hataMesaji=str)->None:
         """[Ekrana hata mesaji yansitir.]s
 
@@ -265,12 +270,12 @@ class mainApp(QMainWindow):
         self.hastaTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.hastaTable.setSelectionBehavior(QAbstractItemView.SelectRows)
         for hasta in hastalar:
-            self.hastaTable.setItem(row , 0 , QTableWidgetItem(str(hasta[0])))
-            self.hastaTable.setItem(row , 1 , QTableWidgetItem(hasta[1]+' ' + hasta[2]))
-            self.hastaTable.setItem(row , 2 , QTableWidgetItem(hasta[3]))
-            self.hastaTable.setItem(row , 3 , QTableWidgetItem(hasta[4]))
-            self.hastaTable.setItem(row , 4 , QTableWidgetItem(str(hasta[5])))
-            self.hastaTable.setItem(row , 5 , QTableWidgetItem(str(hasta[6])))
+            self.hastaTable.setItem(row , 0 , QTableWidgetItem(str(hasta[1])))
+            self.hastaTable.setItem(row , 1 , QTableWidgetItem(hasta[2]))
+            self.hastaTable.setItem(row , 2 , QTableWidgetItem(hasta[5]))
+            self.hastaTable.setItem(row , 3 , QTableWidgetItem(hasta[6]))
+            self.hastaTable.setItem(row , 4 , QTableWidgetItem(str(hasta[4])))
+            self.hastaTable.setItem(row , 5 , QTableWidgetItem(str(hasta[3])))
             for i in range(6):
                 item = self.hastaTable.item(row, i)
                 item.setTextAlignment(Qt.AlignCenter)
@@ -287,6 +292,10 @@ class mainApp(QMainWindow):
         errorBox.setText(hataMesaji)
         return errorBox
 
-
-
-             
+app = QApplication(sys.argv)
+demo = mainApp()
+demo.show()
+try:
+    sys.exit(app.exec_())
+except SystemExit:
+    print('Closing Window')
