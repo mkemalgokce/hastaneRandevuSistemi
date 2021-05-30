@@ -4,7 +4,25 @@ from PyQt5 import uic
 from PyQt5.QtCore import QRegExp,QEvent,Qt
 from PyQt5.QtGui import QRegExpValidator
 from database import dataBase
-
+import re
+ 
+# Make a regular expression
+# for validating an Email
+regex = '^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'
+ 
+# Define a function for
+# for validating an Email
+ 
+ 
+def checkMail(email):
+ 
+    # pass the regular expression
+    # and the string in search() method
+    if(re.search(regex, email)):
+        return True
+ 
+    else:
+        return False
         
 def mesaiSaatleri(saat=tuple)->tuple:
     '''Mesai saatlerini saat degiskenine atar.'''
@@ -103,18 +121,18 @@ class hastaEkle(QWidget):
                 if(self.comboBox_Poliklinik.currentText()==self.poliklinikler[1]):
                     dok = self.doktorlar.copy()[:3]
                     for i in range(len(datas)):
-                        if(dok[1] == datas[i][0]):
+                        if(self.doktorlar[1] == datas[i][0]):
                             dok.remove(datas[i][0])
-                        elif(dok[2] == datas[i][0]):
+                        elif(self.doktorlar[2] == datas[i][0]):
                             dok.remove(datas[i][0])
                     self.comboBox_AddItems('doktor',dok)
                 
                 elif(self.comboBox_Poliklinik.currentText()==self.poliklinikler[2]):
                     dok = [self.doktorlar[0]]+self.doktorlar.copy()[3:] 
                     for i in range(len(datas)):
-                        if(dok[1] == datas[i][0]):
+                        if(self.doktorlar[3] == datas[i][0]):
                             dok.remove(datas[i][0])
-                        elif(dok[2] == datas[i][0]):
+                        elif(self.doktorlar[4] == datas[i][0]):
                             dok.remove(datas[i][0])
                     self.comboBox_AddItems('doktor',dok)
         return False     
@@ -180,8 +198,9 @@ class hastaEkle(QWidget):
         elif(len(tc)<11):
             self.errorBox("Lutfen TC'nizi dogru giriniz!")
         elif len(uniquePatiens) != 0 and uniquePatiens[0][1] != ad and uniquePatiens[0][1] != soyad :
-            self.errorBox('Hatali TC !')
-            
+            self.errorBox('Sistemde bu TC ile kaydedilmis baska bir kayit var !')
+        elif not checkMail(mail):
+            self.errorBox('Hatali mail adresi!')
         else:
             if(not self.parent.database.randevuEkle(tc,ad,soyad,tarih,saat,poliklinik,doktor,mail,cinsiyet,dogum_tarihi)):
                 self.errorBox('Hasta eklenemedi!')
@@ -247,6 +266,8 @@ class mainApp(QMainWindow):
             Hasta silme butonunun fonksiyonu
         '''
         tc = self.delDialog.tc_lineEdit.text()
+        tarih = self.delDialog.tarih_dateEdit.date()
+        saat = self.delDialog.saat_Combobox.currentText()
         if(len(tc)<11):
             self.errorBox('Hatali TC girdiniz !').show()
             
