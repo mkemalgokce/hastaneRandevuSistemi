@@ -6,27 +6,24 @@ from PyQt5.QtGui import QRegExpValidator
 from database import dataBase
 import re
  
-# Make a regular expression
-# for validating an Email
-regex = '^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'
- 
-# Define a function for
-# for validating an Email
+
+
+
  
  
-def checkMail(email):
- 
-    # pass the regular expression
-    # and the string in search() method
+def checkMail(email=str)->bool:
+    '''Kullanicinin girdigi email formatinin dogru olup olmadigini kontrol eden fonksiyon.'''
+    regex = '^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'
     if(re.search(regex, email)):
         return True
  
     else:
         return False
         
-def mesaiSaatleri(saat=tuple)->tuple:
+def mesaiSaatleri(saat=list)->list:
     '''Mesai saatlerini saat degiskenine atar.'''
     saat = ['Saat Seciniz.']
+    
     for i in range(9):
             for j in range(4):
                 if(i==3):
@@ -46,7 +43,7 @@ class hastaEkle(QWidget):
     def __init__(self,parent):     
         self.saat = mesaiSaatleri([])    
         self.doktorlar = ['Doktor Seciniz.','Mehmet Uzun','Hasan Ustundag','Halil Sezai','Hamza Boynukalin']
-        self.poliklinikler = ['Poliklinik Seciniz.','Dahiliye','Hariciye']                 
+        self.poliklinikler = ['Poliklinik Seciniz.','Dahiliye','Ortopedi']                 
         super().__init__()
         self.init_Ui()
         self.parent = parent
@@ -59,7 +56,7 @@ class hastaEkle(QWidget):
         #Validator atayarak lineEditlere rakam/harf girislerini engelledik.
         
         numberValidator = QRegExpValidator(QRegExp('[0-9]+'))
-        letterValidator = QRegExpValidator(QRegExp('[a-zA-Z ]+'))   
+        letterValidator = QRegExpValidator(QRegExp('[a-zA-Z üÜöÖğĞçÇİşŞ]+'))   
         
         #lineEditlerin max uzakliklarini belirledik.
         self.tc_Line.setMaxLength(11)
@@ -86,7 +83,7 @@ class hastaEkle(QWidget):
         self.hastaEkle_Btn.clicked.connect(self.add_Database)
         
         
-    def eventFilter(self,target,event):
+    def eventFilter(self,target,event)->bool:
         #Eventleri duzenleyen fonksiyon, Comboboxlardaki verileri otomatik olarak duzenlemek icin kullandik.
         
         if target == self.comboBox_Saat and event.type() == QEvent.MouseButtonPress:
@@ -192,11 +189,14 @@ class hastaEkle(QWidget):
         dogum_tarihi = self.dt_dateEdit.date().toString("MM.dd.yyyy")
         mail = self.mail_Line.text()
         uniquePatiens = self.parent.database.getUniqueTC(tc)
+        print(uniquePatiens)
         if(mail=='' or ad == '' or soyad == '' or tc == '' or doktor == 'Doktor Seciniz.' or poliklinik == 'Poliklinik Seciniz.' or saat == 'Saat Seciniz.'):
+            print('a')
             self.errorBox('Lutfen tum alanlari eksiksiz doldurunuz!')
 
         elif(len(tc)<11):
             self.errorBox("Lutfen TC'nizi dogru giriniz!")
+        
         elif len(uniquePatiens) != 0 and uniquePatiens[0][1] != ad and uniquePatiens[0][1] != soyad :
             self.errorBox('Sistemde bu TC ile kaydedilmis baska bir kayit var !')
         elif not checkMail(mail):
@@ -236,6 +236,7 @@ class mainApp(QMainWindow):
             self.updateTable()
             self.add_Btn.clicked.connect(self.addFunc)
             self.del_Btn.clicked.connect(self.delFunc)
+            self.stat_Btn.clicked.connect(self.istatistikFunc)
             
         else:
             self.database_ErrorBox = self.errorBox("Database'e baglanilamadi.")
@@ -248,38 +249,94 @@ class mainApp(QMainWindow):
         '''
         self.hastaEkle = hastaEkle(self)
         self.hastaEkle.show()
-        
+       
     def delFunc(self)->None:
         '''
             Hasta silme penceresini acar.
         '''
-        self.delDialog= QDialog()
-        uic.loadUi('Uis/hastaSil.ui',self.delDialog)
+        saatList = []
+        saatList = mesaiSaatleri(saatList)
+        self.delW= QWidget()
+        uic.loadUi('Uis/hastaSil.ui',self.delW)
         numberValidator = QRegExpValidator(QRegExp('[0-9]+'))
-        self.delDialog.tc_lineEdit.setMaxLength(11)
-        self.delDialog.tc_lineEdit.setValidator(numberValidator)
-        self.delDialog.show()
-        self.delDialog.onayla_Btn.clicked.connect(self.del_Btn_Func)
+        self.delW.tc_lineEdit.setMaxLength(11)
+        self.delW.tc_lineEdit.setValidator(numberValidator)
+        self.delW.saat_comboBox.addItems(saatList)
+        self.delW.show()
+        self.delW.onayla_Btn.clicked.connect(self.del_Btn_Func)
         
+    def istatistikFunc(self)->None:
+        '''
+            Istatistik pencereini acar, oradaki degerleri database'den ceker.
+        '''
+        
+        self.istatistikW = QWidget()
+        uic.loadUi('Uis/istatistik.ui',self.istatistikW)
+        self.updateIstatistikTable()
+        
+        #Databaseden verileri cekerek, onlari degiskenlere atayan kisim.
+        toplamHasta = self.database.getIstatistik('toplam_hasta_sayisi')[0][0]
+        toplamErkek = self.database.getIstatistik('toplam_erkek_sayisi')[0][0]
+        toplamKadin = self.database.getIstatistik('toplam_kadin_sayisi')[0][0]
+        erkekYas = self.database.getIstatistik('erkek_yas')[0][0]
+        kadinYas = self.database.getIstatistik('kadin_yas')[0][0]
+        # polHastalar = self.database.getIstatistik('pol_gelen_hasta')
+        # kadinYas = self.database.getIstatistik('kadin_yas')[0][0]
+        en_yogun_gun = self.database.getIstatistik('en_yogun_gun')[0][0]
+        hasta_gencler = self.database.getIstatistik('hasta_gencler')[0][0]
+        maxDoktor = self.database.getIstatistik('max_doktor')[0][0]
+        
+        # #Degiskenleri arayuzdeki labellara atayan kisim.
+        self.istatistikW.toplamHasta_label.setText(str(toplamHasta))
+        self.istatistikW.toplamErkek_label.setText(str(toplamErkek))
+        self.istatistikW.toplamKadin_label.setText(str(toplamKadin))
+        self.istatistikW.avgErkek_label.setText(str(erkekYas))
+        self.istatistikW.avgKadin_label.setText(str(kadinYas))
+        # self.istatistikW.maxPol1_label.setText(str(polHastalar[0][1]))
+        # self.istatistikW.maxPol2_label.setText(str(polHastalar[1][1]))
+        self.istatistikW.eyg_label.setText(str(en_yogun_gun))
+        self.istatistikW.hastaGencler_label.setText(str(hasta_gencler))
+        self.istatistikW.maxDoktor_label.setText(str(maxDoktor))
+        
+        # Tabloya verilerin yerlestirilmesi
+        self.istatistikW.show()
+    
+    def updateIstatistikTable(self):
+        istatistikler = self.database.getIstatistikValues()
+        print(istatistikler)
+        row = 0
+        self.istatistikW.istatistik_tableWidget.setRowCount(len(istatistikler)) 
+        self.istatistikW.istatistik_tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.istatistikW.istatistik_tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+        for istatistik in istatistikler:
+            self.istatistikW.istatistik_tableWidget.setItem(row , 0 , QTableWidgetItem(str(istatistik[1])+' ' +str(istatistik[2])))
+            self.istatistikW.istatistik_tableWidget.setItem(row , 1 , QTableWidgetItem(str(istatistik[3])))
+            self.istatistikW.istatistik_tableWidget.setItem(row , 2 , QTableWidgetItem(str(istatistik[4])))
+            self.istatistikW.istatistik_tableWidget.setItem(row , 3 , QTableWidgetItem(str(istatistik[5])))
+            self.istatistikW.istatistik_tableWidget.setItem(row , 4 , QTableWidgetItem(str(istatistik[6])))
+            for i in range(4):
+                item = self.istatistikW.istatistik_tableWidget.item(row, i)
+                item.setTextAlignment(Qt.AlignCenter)
+            row+=1
     def del_Btn_Func(self)->None:
         '''
             Hasta silme butonunun fonksiyonu
         '''
-        tc = self.delDialog.tc_lineEdit.text()
-        tarih = self.delDialog.tarih_dateEdit.date()
-        saat = self.delDialog.saat_Combobox.currentText()
+        tc = self.delW.tc_lineEdit.text()
+        tarih = self.delW.tarih_dateEdit.date().toString("dd.MM.yyyy")
+        saat = self.delW.saat_comboBox.currentText()
         if(len(tc)<11):
             self.errorBox('Hatali TC girdiniz !').show()
             
         else:
-            if(self.database.randevuSil(tc= tc) == 1):
+            if(self.database.randevuSil(tc,tarih,saat)):
                 self.errorBox('Kayit Silindi .').show()
                 self.updateTable()
-            
-            elif(self.database.randevuSil(tc= tc) == -1):
-                self.errorBox('Hata Olustu !').show()
             else:
-                self.errorBox('Kayit Bulunamadi !').show()
+                self.errorBox('Hata Olustu!').show()
+            
+            
+
 
     def updateTable(self)->None:
         '''

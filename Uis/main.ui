@@ -115,7 +115,7 @@ background-repeat:none;
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="stat_Button">
+      <widget class="QPushButton" name="stat_Btn">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
          <horstretch>0</horstretch>
