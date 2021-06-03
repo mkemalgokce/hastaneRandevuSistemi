@@ -316,7 +316,6 @@ class dataBase():
         '''
         
         strCommand = 'EXEC hastaSil ' + "'"+ str(tc)+ "'," +"'" +str(tarih)+"',"+"'"+str(saat)+"'"
-        print(strCommand)
         # Hata varsa return False, yoksa return True.
         try:
             

@@ -1,10 +1,12 @@
 import sys 
 from PyQt5.QtWidgets import QApplication,QWidget,QMessageBox
 from PyQt5 import uic
+from PyQt5.QtGui import QIcon
 from main import mainApp
 
 USERNAME ='admin'
 PASSWORD = 'myPassword'
+
 class loginApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -37,7 +39,9 @@ class loginApp(QWidget):
         
 
 app = QApplication(sys.argv)
+app.setWindowIcon(QIcon('Icons/loginImg.png'))
 demo = loginApp()
+
 demo.show()
 try:
     sys.exit(app.exec_())
@@ -45,15 +49,3 @@ except SystemExit:
     print('Closing Window')
 
 
-
-# def showDialog():
-#    msgBox = QMessageBox()
-#    msgBox.setIcon(QMessageBox.Information)
-#    msgBox.setText("Message box pop up window")
-#    msgBox.setWindowTitle("QMessageBox Example")
-#    msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-#    msgBox.buttonClicked.connect(msgButtonClick)
-
-#    returnValue = msgBox.exec()
-#    if returnValue == QMessageBox.Ok:
-#       print('OK clicked')

@@ -31,7 +31,7 @@ def createPDF(msg=str)->None:
     msg = msg.split('\n')
     lenMsg = len(msg)
     for i in range(0,lenMsg):
-        pdf.cell(150, 20+2*i, txt = msg[i], 
+        pdf.cell(150, 10, txt = msg[i], 
             ln = 1, align = 'L')
     
     
@@ -227,9 +227,7 @@ class hastaEkle(QWidget):
         dogum_tarihi = self.dt_dateEdit.date().toString("MM.dd.yyyy")
         mail = self.mail_Line.text()
         uniquePatiens = self.parent.database.getUniqueTC(tc)
-        print(uniquePatiens)
         if(mail=='' or ad == '' or soyad == '' or tc == '' or doktor == 'Doktor Seciniz.' or poliklinik == 'Poliklinik Seciniz.' or saat == 'Saat Seciniz.'):
-            print('a')
             self.errorBox('Lutfen tum alanlari eksiksiz doldurunuz!')
 
         elif(len(tc)<11):
@@ -344,7 +342,7 @@ class mainApp(QMainWindow):
         en_yogun_gun = self.database.getIstatistik('en_yogun_gun')[0][0]
         hasta_gencler = self.database.getIstatistik('hasta_gencler')[0][0]
         maxDoktor = self.database.getIstatistik('max_doktor')[0][0]
-        
+
         # #Degiskenleri arayuzdeki labellara atayan kisim.
         self.istatistikW.toplamHasta_label.setText(str(toplamHasta))
         self.istatistikW.toplamErkek_label.setText(str(toplamErkek))
@@ -386,7 +384,6 @@ class mainApp(QMainWindow):
             Bu fonksiyon istatistik tablosunu gunceller.
         '''
         istatistikler = self.database.getIstatistikValues()
-        print(istatistikler)
         row = 0
         self.istatistikW.istatistik_tableWidget.setRowCount(len(istatistikler)) 
         self.istatistikW.istatistik_tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -465,13 +462,5 @@ class mainApp(QMainWindow):
             msg +='Tarih: '+str(self.database.getAllPatients()[i][5])+' | '
             msg += 'Saat: '+str(self.database.getAllPatients()[i][6])+' | '
             msg += 'Poliklinik: '+str(self.database.getAllPatients()[i][4])+' | '
-            msg += 'Doktor: '+str(self.database.getAllPatients()[i][3])+'\n'
-        print(msg)   
+            msg += 'Doktor: '+str(self.database.getAllPatients()[i][3])+'\n'  
         createPDF(msg)
-app = QApplication(sys.argv)
-demo = mainApp()
-demo.show()
-try:
-    sys.exit(app.exec_())
-except SystemExit:
-    print('Closing Window')
