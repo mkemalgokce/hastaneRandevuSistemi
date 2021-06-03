@@ -2,15 +2,46 @@ import sys
 from PyQt5.QtWidgets import QApplication,QWidget,QMessageBox,QMainWindow,QDateEdit,QComboBox,QDialog,QTableWidget,QTableWidgetItem,QAbstractItemView
 from PyQt5 import uic
 from PyQt5.QtCore import QRegExp,QEvent,Qt
-from PyQt5.QtGui import QRegExpValidator
+from PyQt5.QtGui import QRegExpValidator,QPixmap
 from database import dataBase
+import matplotlib.pyplot as plt
+from functools import partial
 import re
- 
+import smtplib
+from fpdf import FPDF
+import subprocess
 
+def createPDF(msg=str)->None:
+    '''
+        Bu fonksiyon verilen string degerini pdf'e ekler.
+    '''
+    pdf = FPDF()
+  
+    # Yeni sayfa olusturuyor.
+    pdf.add_page()
+    
+    # Pdf'in fontunu ve buyuklugunu belirledik.
+    pdf.set_font("Arial", size = 20)
+    
+    # create a cell
+    pdf.cell(150, 10, txt = 'Hastane Randevu Sistemi\n', 
+            ln = 1, align = 'C')
+    # 
+    pdf.set_font("Arial", size = 8)
+    msg = msg.split('\n')
+    lenMsg = len(msg)
+    for i in range(0,lenMsg):
+        pdf.cell(150, 20+2*i, txt = msg[i], 
+            ln = 1, align = 'L')
+    
+    
+    # PDF' i saveledik.
+    pdf.output("hastanerandevu.pdf")  
+    
+    # PDF'i actik.
+    subprocess.Popen('open %s' % 'hastanerandevu.pdf', shell=True)
 
-
- 
- 
+    
 def checkMail(email=str)->bool:
     '''Kullanicinin girdigi email formatinin dogru olup olmadigini kontrol eden fonksiyon.'''
     regex = '^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'
@@ -36,6 +67,12 @@ def mesaiSaatleri(saat=list)->list:
                     saat.append(saatStr[:5])
     return saat    
 
+def sendMail(target=str,mailMessage=str)->None:
+    server = smtplib.SMTP_SSL('smtp.gmail.com',465)
+    server.login('hastanerandevusistemi10@gmail.com','hastanerandevU3')
+    server.sendmail('hastanerandevu10@gmail.com',target,mailMessage)
+    server.quit()
+    
 class hastaEkle(QWidget):
     '''
         Hasta bilgilerinin database'e eklendigi pencere.
@@ -132,7 +169,8 @@ class hastaEkle(QWidget):
                         elif(self.doktorlar[4] == datas[i][0]):
                             dok.remove(datas[i][0])
                     self.comboBox_AddItems('doktor',dok)
-        return False     
+        return False   
+      
     def comboBox_AddItems(self,switch=str,data=list)->None:
         '''
             Comboboxlara degerler eklememizi/ degerleri guncellememizi saglayan fonksiyon.
@@ -206,6 +244,25 @@ class hastaEkle(QWidget):
                 self.errorBox('Hasta eklenemedi!')
             else:
                 self.errorBox('Islem tamamlandi.')
+                sendMail(target=mail,mailMessage ='''Subject: Hastane Randevu\n\n
+                Randevunuz basariyla olusturuldu.
+                -----------------------------------------------------------------
+                
+                    Randevu Bilgileri
+                    -------------------------
+                    
+                         Ad-soyad : {ad} {soyad}
+
+                         Randevu tarihi : {tarih}
+
+                         Randevu saati : {saat}
+
+                         Poliklinik : {poliklinik}
+
+                         Doktor : {doktor}
+                    
+                '''.format(ad=ad,soyad=soyad,tarih=tarih,saat=saat,poliklinik=poliklinik,doktor=doktor))
+                
                 self.parent.updateTable()
                 
         self.update()
@@ -237,6 +294,7 @@ class mainApp(QMainWindow):
             self.add_Btn.clicked.connect(self.addFunc)
             self.del_Btn.clicked.connect(self.delFunc)
             self.stat_Btn.clicked.connect(self.istatistikFunc)
+            self.yazdir_Btn.clicked.connect(self.yazdirFunc)
             
         else:
             self.database_ErrorBox = self.errorBox("Database'e baglanilamadi.")
@@ -272,7 +330,7 @@ class mainApp(QMainWindow):
         
         self.istatistikW = QWidget()
         uic.loadUi('Uis/istatistik.ui',self.istatistikW)
-        self.updateIstatistikTable()
+        
         
         #Databaseden verileri cekerek, onlari degiskenlere atayan kisim.
         toplamHasta = self.database.getIstatistik('toplam_hasta_sayisi')[0][0]
@@ -280,7 +338,8 @@ class mainApp(QMainWindow):
         toplamKadin = self.database.getIstatistik('toplam_kadin_sayisi')[0][0]
         erkekYas = self.database.getIstatistik('erkek_yas')[0][0]
         kadinYas = self.database.getIstatistik('kadin_yas')[0][0]
-        # polHastalar = self.database.getIstatistik('pol_gelen_hasta')
+        pol_dahiliye_Hastalar = self.database.getIstatistik('dahiliye_gelen_hasta')
+        pol_ortopedi_Hastalar = self.database.getIstatistik('ortopedi_gelen_hasta')
         # kadinYas = self.database.getIstatistik('kadin_yas')[0][0]
         en_yogun_gun = self.database.getIstatistik('en_yogun_gun')[0][0]
         hasta_gencler = self.database.getIstatistik('hasta_gencler')[0][0]
@@ -292,16 +351,40 @@ class mainApp(QMainWindow):
         self.istatistikW.toplamKadin_label.setText(str(toplamKadin))
         self.istatistikW.avgErkek_label.setText(str(erkekYas))
         self.istatistikW.avgKadin_label.setText(str(kadinYas))
-        # self.istatistikW.maxPol1_label.setText(str(polHastalar[0][1]))
-        # self.istatistikW.maxPol2_label.setText(str(polHastalar[1][1]))
+        self.istatistikW.maxPol1_label.setText(str(pol_dahiliye_Hastalar[0]))
+        self.istatistikW.maxPol2_label.setText(str(pol_ortopedi_Hastalar[0]))
         self.istatistikW.eyg_label.setText(str(en_yogun_gun))
         self.istatistikW.hastaGencler_label.setText(str(hasta_gencler))
         self.istatistikW.maxDoktor_label.setText(str(maxDoktor))
         
+        #Grafiklerin olusturulmasi
+        plt.style.use('ggplot')
+        fig = plt.figure(figsize=(2.2,2.2))
+        fig.patch.set_facecolor([67/255, 67/255, 152/255])
+        plt.pie([toplamErkek,toplamKadin],autopct='%1.1f%%',shadow=True, labels=['Erkek','Kadin'],textprops={'fontsize': 8})
+        plt.title('Toplam Hasta Dagilimi',fontsize=8)
+        plt.savefig('Grafikler/gr1.png', bbox_inches='tight')
+        
+        fig = plt.figure(figsize=(2.2,2.2))
+        fig.patch.set_facecolor([67/255, 67/255, 152/255])
+        plt.pie([pol_dahiliye_Hastalar[0],pol_ortopedi_Hastalar[0]],autopct='%1.1f%%',shadow=True, labels=['Dahiliye','Ortopedi'],textprops={'fontsize': 8})
+        plt.title('Polikliniklerin Oranlari',fontsize=8)
+        plt.savefig('Grafikler/gr2.png', bbox_inches='tight')
+        
+        # Grafiklerin pencereye yerlestirilmesi
+        pixmap1 = QPixmap('Grafikler/gr1.png')
+        self.istatistikW.gr1_label.setPixmap(pixmap1)
+        pixmap2 = QPixmap('Grafikler/gr2.png')
+        self.istatistikW.gr2_label.setPixmap(pixmap2)
         # Tabloya verilerin yerlestirilmesi
+        self.updateIstatistikTable()
         self.istatistikW.show()
-    
-    def updateIstatistikTable(self):
+
+        
+    def updateIstatistikTable(self)->None:
+        '''
+            Bu fonksiyon istatistik tablosunu gunceller.
+        '''
         istatistikler = self.database.getIstatistikValues()
         print(istatistikler)
         row = 0
@@ -318,6 +401,7 @@ class mainApp(QMainWindow):
                 item = self.istatistikW.istatistik_tableWidget.item(row, i)
                 item.setTextAlignment(Qt.AlignCenter)
             row+=1
+            
     def del_Btn_Func(self)->None:
         '''
             Hasta silme butonunun fonksiyonu
@@ -370,6 +454,20 @@ class mainApp(QMainWindow):
         errorBox.setText(hataMesaji)
         return errorBox
 
+    def yazdirFunc(self):
+        '''
+            Bu fonksiyon verileri bir stringe ekler ve onlari createPdf fonksiyonuna yollar.
+        '''
+        msg = ''
+        for i in range(0,len(self.database.getAllPatients())):
+            msg += 'TC: '+str(self.database.getAllPatients()[i][1])+' | '
+            msg += 'AD-Soyad: '+str(self.database.getAllPatients()[i][2])+' | '
+            msg +='Tarih: '+str(self.database.getAllPatients()[i][5])+' | '
+            msg += 'Saat: '+str(self.database.getAllPatients()[i][6])+' | '
+            msg += 'Poliklinik: '+str(self.database.getAllPatients()[i][4])+' | '
+            msg += 'Doktor: '+str(self.database.getAllPatients()[i][3])+'\n'
+        print(msg)   
+        createPDF(msg)
 app = QApplication(sys.argv)
 demo = mainApp()
 demo.show()

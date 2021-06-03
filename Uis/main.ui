@@ -150,7 +150,7 @@ background-repeat:none;</string>
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>100</y>
+      <y>70</y>
       <width>842</width>
       <height>531</height>
      </rect>
@@ -347,6 +347,22 @@ border:none;
     </property>
     <property name="text">
      <string>HASTANE RANDEVU SİSTEMİ</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="yazdir_Btn">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>610</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(228, 255, 139);</string>
+    </property>
+    <property name="text">
+     <string>Yazdir</string>
     </property>
    </widget>
   </widget>

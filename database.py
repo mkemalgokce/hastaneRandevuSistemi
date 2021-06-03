@@ -419,6 +419,28 @@ class dataBase():
         elif switch == 'hasta_gencler':
             self.cursor.execute('EXEC hastaGencler')
             return self.cursor.fetchall()
+        elif switch == 'dahiliye_gelen_hasta':
+            self.cursor.execute('''
+                SELECT sum(counted) as Dahiliye_GTHS FROM
+                (
+                    SELECT COUNT(*) AS counted
+                    FROM Istatistik
+                    Where Doktor = 'Mehmet Uzun' or Doktor = 'Hasan Ustundag'
+                    GROUP BY Doktor
+                ) AS counts;                   
+            ''')
+            return self.cursor.fetchone()
+        elif switch == 'ortopedi_gelen_hasta':
+            self.cursor.execute('''
+                SELECT sum(counted) as Ortopedi_GTHS FROM
+                (
+                    SELECT COUNT(*) AS counted
+                    FROM Istatistik
+                    Where Doktor = 'Halil Sezai' or Doktor = 'Hamza Boynukalin'
+                    GROUP BY Doktor
+                ) AS counts;                   
+            ''')
+            return self.cursor.fetchone()
         else:
             print('Hata!')
 
