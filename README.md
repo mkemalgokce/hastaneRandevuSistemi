@@ -1,3 +1,10 @@
+# Hastane Randevu Otomasyonu
+
+## Installation
+
+* pip install requirements.txt
+<hr>
+
 Bu hastanede 2 poliklinik ve 4 doktor vardır. Her poliklinikte 2 doktor şeklinde hasta tedavi etmektedir. 
 
 Projeyi yaparken MSSQL Server veri tabanı ile Python dili kullanıldı.Veri tabanının arayüzünü görselleştirmek için arayüz olarak PyQt5 kütüphanesi kullanıldı.Arayüzleri dizayn etmek için Qt Designer adlı programdan yararlanıldı.
@@ -26,7 +33,7 @@ slotlardan randevu alabilir. Bir hasta ilgili doktor için belirli bir saatte ra
 
 Hasta randevu aldığında şu şekilde e-posta adresine mail gelecektir :
 
-![image](https://user-images.githubusercontent.com/61952281/120886032-86d91d80-c5f4-11eb-8396-8fedd66bd2b5.png)
+![image](https://user-images.githubusercontent.com/46056478/120931760-b292fb00-c6fb-11eb-80c3-1c25b11d9f65.png)
 
 # Randevu İptal Et:
 
